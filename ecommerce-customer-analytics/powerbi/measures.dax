@@ -1,0 +1,30 @@
+-- Starter DAX measures for a Power BI model table named transactions.
+-- Ensure revenue is defined in Power Query or as a calculated column:
+-- Revenue = transactions[quantity] * transactions[unit_price] * (1 - transactions[discount_pct])
+
+Total Revenue = SUM(transactions[revenue])
+
+Total Orders = DISTINCTCOUNT(transactions[order_id])
+
+Active Customers = DISTINCTCOUNT(transactions[customer_id])
+
+Units Sold = SUM(transactions[quantity])
+
+Average Order Value = DIVIDE([Total Revenue], [Total Orders], 0)
+
+Revenue Previous Month =
+CALCULATE([Total Revenue], DATEADD('Date'[Date], -1, MONTH))
+
+Revenue MoM % =
+DIVIDE([Total Revenue] - [Revenue Previous Month], [Revenue Previous Month], 0)
+
+Repeat Customers =
+COUNTROWS(
+    FILTER(
+        VALUES(transactions[customer_id]),
+        CALCULATE(DISTINCTCOUNT(transactions[order_id])) > 1
+    )
+)
+
+Repeat Customer Rate =
+DIVIDE([Repeat Customers], [Active Customers], 0)
